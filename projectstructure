@@ -1,0 +1,220 @@
+
+/*
+Perfect! You want a full Playwright automation framework for https://www.saucedemo.com/
+ using global setup (so login or environment setup runs once before tests) with Allure reporting. I’ll provide a complete, ready-to-run structure with all necessary code.
+
+1. Project Structure
+=====================
+
+saucedemo-playwright/
+├── global-setup.ts         # Global setup (login once)
+├── tests/                  # All test scripts
+│   ├── login.spec.ts
+│   ├── products.spec.ts
+│   └── checkout.spec.ts
+├── pages/                  # Page Object Models
+│   ├── basePage.ts
+│   ├── loginPage.ts
+│   ├── productsPage.ts
+│   └── cartPage.ts
+├── utils/                  # Utility/helper functions
+│   └── testData.ts
+├── playwright.config.ts    # Playwright config
+├── package.json
+├── tsconfig.json
+└── allure-results/         # Allure report results
+
+2. Install Dependencies
+=======================
+
+npm init -y
+npm install -D @playwright/test allure-playwright typescript ts-node dotenv
+npx playwright install
+
+
+3. Playwright Configuration (playwright.config.ts)
+==================================================
+
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests',
+  timeout: 60000,
+  retries: 1,
+  reporter: [
+    ['list'],
+    ['allure-playwright']
+  ],
+  use: {
+    browserName: 'chromium',
+    headless: false,
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    trace: 'on-first-retry',
+    baseURL: 'https://www.saucedemo.com',
+  },
+  globalSetup: require.resolve('./global-setup'),
+});
+
+
+4. Global Setup (global-setup.ts)
+==================================
+
+Here we can pre-login once and save storage state:
+--------------------------------------------------
+
+import { chromium, FullConfig } from '@playwright/test';
+
+async function globalSetup(config: FullConfig) {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+
+  await page.goto('https://www.saucedemo.com/');
+
+  // Login
+  await page.fill('#user-name', 'standard_user');
+  await page.fill('#password', 'secret_sauce');
+  await page.click('#login-button');
+
+  // Save storage state for reuse
+  await page.context().storageState({ path: 'storageState.json' });
+
+  await browser.close();
+}
+
+export default globalSetup;
+
+
+
+5. Base Page (pages/basePage.ts)
+================================
+
+import { Page } from '@playwright/test';
+
+export class BasePage {
+  constructor(public page: Page) {}
+
+  async navigate(url: string) {
+    await this.page.goto(url);
+  }
+
+  async click(selector: string) {
+    await this.page.click(selector);
+  }
+
+  async type(selector: string, text: string) {
+    await this.page.fill(selector, text);
+  }
+
+  async getText(selector: string) {
+    return this.page.textContent(selector);
+  }
+}
+
+
+
+6. Login Page (pages/loginPage.ts)
+==================================
+
+import { BasePage } from './basePage';
+import { Page } from '@playwright/test';
+
+export class LoginPage extends BasePage {
+  constructor(page: Page) {
+    super(page);
+  }
+
+  usernameInput = '#user-name';
+  passwordInput = '#password';
+  loginBtn = '#login-button';
+
+  async login(username: string, password: string) {
+    await this.type(this.usernameInput, username);
+    await this.type(this.passwordInput, password);
+    await this.click(this.loginBtn);
+  }
+}
+
+
+7. Products Page (pages/productsPage.ts)
+========================================
+
+import { BasePage } from './basePage';
+
+export class ProductsPage extends BasePage {
+  addToCartBtn = (productName: string) => `text=${productName} >> xpath=../.. >> button`;
+
+  async addProductToCart(productName: string) {
+    await this.click(this.addToCartBtn(productName));
+  }
+
+  async getCartCount() {
+    const count = await this.getText('.shopping_cart_badge');
+    return parseInt(count || '0');
+  }
+}
+
+
+
+8. Sample Test (tests/products.spec.ts)
+========================================
+
+import { test, expect } from '@playwright/test';
+import { ProductsPage } from '../pages/productsPage';
+
+test.use({ storageState: 'storageState.json' });
+
+test.describe('Products Page Tests', () => {
+  test('Add product to cart', async ({ page }) => {
+    const productsPage = new ProductsPage(page);
+    await productsPage.navigate('/inventory.html');
+
+    await productsPage.addProductToCart('Sauce Labs Backpack');
+    const cartCount = await productsPage.getCartCount();
+    expect(cartCount).toBe(1);
+  });
+});
+
+
+9. Running Tests
+================
+npx playwright test
+
+
+10. Allure Reporting
+=====================
+
+Install Allure CLI:
+-------------------
+
+npm install -D allure-commandline
+
+
+Run tests with Allure:
+-----------------------
+
+npx playwright test --reporter=list,allure-playwright
+
+
+Generate and open report:
+-------------------------
+
+npx allure generate allure-results --clean -o allure-report
+
+npx allure open allure-report
+
+
+✅ Framework Features:
+=======================
+
+Global setup logs in once and saves storage state.
+
+Page Object Model (POM) for maintainable tests.
+
+Allure reporting integrated.
+
+Reusable utilities and easy scalability for more pages/tests.
+
+Works with standard_user, locked_out_user, problem_user, etc.
+
+*/

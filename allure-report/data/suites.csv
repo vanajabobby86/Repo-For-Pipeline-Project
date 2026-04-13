@@ -1,0 +1,4 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","60074","complete ecommerce purchase flow","","2026-03-14","broken","2026-03-14","","ecommerce.spec.ts","",""
+"","2618","has title","","2026-03-14","passed","2026-03-14","","example.spec.ts","",""
+"","2995","get started link","","2026-03-14","passed","2026-03-14","","example.spec.ts","",""
