@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+
+    triggers {
+        // Run every day at 11:00 AM IST (05:30 UTC)
+        cron('30 5 * * *')
+        // Run every day at 5:00 PM IST (11:30 UTC)
+        cron('30 11 * * *')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Node.js & Dependencies') {
+            steps {
+                sh 'nvm install 18'
+                sh 'nvm use 18'
+                sh 'npm install'
+            }
+        }
+
+        stage('Install Playwright Browsers') {
+            steps {
+                sh 'npx playwright install --with-deps'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh 'npx playwright test'
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                sh 'npm run lint'
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                branch 'main'
+            }
+            steps {
+                echo 'Deploying application...'
+                // Add your actual deploy commands here
+            }
+        }
+    }
+}
