@@ -28,6 +28,10 @@ jobs:
       - name: Run Playwright tests (headless)
         run: npx playwright test --headed=false
 
+      - name: Run Playwright tests
+        run: npx playwright test
+
+
   deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
