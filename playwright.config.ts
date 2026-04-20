@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
@@ -10,11 +10,13 @@ export default defineConfig({
   ],
   use: {
     browserName: 'chromium',
-    headless: false,
+    headless: true,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     trace: 'on-first-retry',
     baseURL: 'https://www.saucedemo.com',
   },
-  globalSetup: require.resolve('./global-setup'),
+
+  globalSetup: './global-setup.ts',
+  
 });

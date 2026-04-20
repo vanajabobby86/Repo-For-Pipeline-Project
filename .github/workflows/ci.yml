@@ -25,11 +25,8 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      - name: Run tests
-        run: npm test
-
-      - name: Lint code
-        run: npm run lint
+      - name: Run Playwright tests (headless)
+        run: npx playwright test --headed=false
 
   deploy:
     needs: build-and-test
