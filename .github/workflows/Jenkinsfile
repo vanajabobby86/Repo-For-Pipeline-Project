@@ -2,10 +2,14 @@ pipeline {
     agent any
 
     triggers {
-        // Run every day at 11:00 AM IST (05:30 UTC)
-        cron('30 5 * * *')
-        // Run every day at 5:00 PM IST (11:30 UTC)
-        cron('30 11 * * *')
+        // Scheduled runs
+        cron('30 5 * * *')   // 11:00 AM IST
+        cron('30 11 * * *')  // 5:00 PM IST
+    }
+
+    environment {
+        NODE_VERSION = '18'
+        PLAYWRIGHT_BROWSERS_PATH = '/tmp/pw-browsers'
     }
 
     stages {
@@ -17,8 +21,8 @@ pipeline {
 
         stage('Install Node.js & Dependencies') {
             steps {
-                sh 'nvm install 18'
-                sh 'nvm use 18'
+                sh 'nvm install $NODE_VERSION'
+                sh 'nvm use $NODE_VERSION'
                 sh 'npm install'
             }
         }
@@ -32,22 +36,6 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh 'npx playwright test'
-            }
-        }
-
-        stage('Lint') {
-            steps {
-                sh 'npm run lint'
-            }
-        }
-
-        stage('Deploy') {
-            when {
-                branch 'main'
-            }
-            steps {
-                echo 'Deploying application...'
-                // Add your actual deploy commands here
             }
         }
     }
