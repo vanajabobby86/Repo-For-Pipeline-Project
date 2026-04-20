@@ -34,5 +34,10 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Deploy to Production
-        run: echo "Deploying application..."
+        run: |
+          echo "Deploying application..."
+          # Replace with actual deploy command
